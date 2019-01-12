@@ -5,12 +5,33 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    " Load the data from 2 csv files 
+    "
+    " Args:
+    "   messages_filepath: file path of the csv file containing the messages
+    "   categories_filepath: file path of the csv file containing the categories
+    "
+    " Returns:
+    "   a dataframe
+    "
+    """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, on='id')
     return df
 
 def clean_data(df):
+    """
+    " clean a dataframe to make it ready for mac hine learning algorithm
+    " 
+    " Args:
+    "   df: the dataframe to clean
+    "
+    " Returns:
+    "   df: the cleaned dataframe
+    "
+    """
     df.iloc[:,4].str.split(";", expand=True)
     df = pd.concat([df,df.iloc[:,4].str.split(";", expand=True)],axis=1)
     columns_names = ['id', 'message', 'original', 'genre', 'categories']
@@ -27,6 +48,17 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """
+    " save a dataframe to a database
+    " 
+    " Args:
+    "   df: the dataframe to save
+    "   database_filename: the name of the file containing the database
+    "  
+    " Returns:
+    "   nothing
+    "
+    """
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('Disaster_Response', engine, index=False)  
 
