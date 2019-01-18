@@ -35,8 +35,8 @@ def load_data(database_filepath):
     "   Y.columns: the list of categories
     "
     """
-    engine = create_engine('sqlite:///InsertDatabaseName.db')
-    df = pd.read_sql_table('InsertTableName', con=engine)
+    engine = create_engine('sqlite:///' + database_filepath)
+    df = pd.read_sql_table('Disaster_Response', con=engine)
     X = df['message']
     Y = df.drop(['message','id','genre','original'], axis=1)
     return X, Y, Y.columns
@@ -101,7 +101,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
     "   nothing
     "
     """
-    y_pred = pd.DataFrame(pipeline.predict(X_test))
+    y_pred = pd.DataFrame(model.predict(X_test))
     y_pred.columns = Y_test.columns
     for column in category_names:
         print(column + ':')
@@ -122,11 +122,11 @@ def save_model(model, model_filepath):
     """
     try:
         with open(model_filepath, 'wb') as file:
-        pickle.dump(model, file)
+            pickle.dump(model, file)
     except IOError as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
     except:
-        print "Unexpected error:", sys.exc_info()[0]
+        print("Unexpected error:", sys.exc_info()[0])
         raise
 
 
