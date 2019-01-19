@@ -11,8 +11,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.svm import LinearSVC
-from sklearn.multiclass import OneVsRestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report
@@ -77,13 +76,12 @@ def build_model():
     "
     """
     # parameters found by using GridSearchCV
-    svc = LinearSVC(random_state=0, C=0.5)
-    multi_class_svc = OneVsRestClassifier(svc)
+    forest = RandomForestClassifier(n_estimators=10, random_state=1)
     pipeline = Pipeline([
-                        ('vect', CountVectorizer(tokenizer=tokenize, max_df=0.4)),
-                        ('tfidf', TfidfTransformer()),
-                        ('clf', MultiOutputClassifier(multi_class_svc))
-                        ])
+            ('vect', CountVectorizer(tokenizer=tokenize)),
+            ('tfidf', TfidfTransformer()),
+            ('clf', MultiOutputClassifier(forest))
+    ])
     return pipeline
 
 
@@ -136,16 +134,16 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-
+        
         print('Building model...')
         model = build_model()
-
+        
         print('Training model...')
         model.fit(X_train, Y_train)
-
+        
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
-
+        
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
 
