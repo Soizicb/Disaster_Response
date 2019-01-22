@@ -1,7 +1,6 @@
 # import libraries
 import sys
 import pandas as pd
-import numpy as np
 import nltk
 import re
 import pickle
@@ -57,7 +56,7 @@ def tokenize(text):
     # tokenize text
     tokens = word_tokenize(text)
 
-    # lemmatize andremove stop words
+    # lemmatize and remove stop words
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopwords.words('english')]
 
@@ -75,14 +74,22 @@ def build_model():
     "   the ML pipeline
     "
     """
-    # parameters found by using GridSearchCV
     forest = RandomForestClassifier(n_estimators=10, random_state=1)
     pipeline = Pipeline([
             ('vect', CountVectorizer(tokenizer=tokenize)),
             ('tfidf', TfidfTransformer()),
             ('clf', MultiOutputClassifier(forest))
     ])
-    return pipeline
+    
+    parameters = { 
+                    'vect__max_df': (0.5, 0.75), 
+                    'tfidf__use_idf': (True, False), 
+                    'clf__estimator__n_estimators': [10, 50, 100], 
+                    }
+    
+    grid_searched_model = GridSearchCV(pipeline, param_grid=parameters, cv=3)
+
+    return grid_searched_model
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
@@ -129,8 +136,20 @@ def save_model(model, model_filepath):
 
 
 def main():
+    """
+    " main function. Load data from database, build, train, evaluate and save 
+    " the model
+    "
+    " Args:
+    "   none
+    "
+    " Returns:
+    "   nothing
+    """
     if len(sys.argv) == 3:
+        
         database_filepath, model_filepath = sys.argv[1:]
+        
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)

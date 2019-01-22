@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -23,7 +22,7 @@ def load_data(messages_filepath, categories_filepath):
 
 def clean_data(df):
     """
-    " clean a dataframe to make it ready for mac hine learning algorithm
+    " clean a dataframe to make it ready for machine learning algorithm
     " 
     " Args:
     "   df: the dataframe to clean
@@ -32,18 +31,26 @@ def clean_data(df):
     "   df: the cleaned dataframe
     "
     """
+    
+    # split categories into separate columns
     df.iloc[:,4].str.split(";", expand=True)
     df = pd.concat([df,df.iloc[:,4].str.split(";", expand=True)],axis=1)
-    columns_names = ['id', 'message', 'original', 'genre', 'categories']
+    
+    columns_names = ['id', 'message', 'original', 'genre', 'categories']    
     for i in range(0,36):
         columns_names.append(df.iloc[0,i+5].split("-")[0])
     df.columns = columns_names
+    
     for col_name in columns_names:
         if col_name not in ['id', 'message', 'original', 'genre', 'categories']:
             df[col_name] = df[col_name].str.split("-", expand=True)[1]
             df[col_name] = pd.to_numeric(df[col_name])
+            
     df = df.drop(['categories'], axis=1)
+    
+    # drop duplicates
     df.drop_duplicates(inplace=True)
+    
     return df
 
 
@@ -59,11 +66,23 @@ def save_data(df, database_filename):
     "   nothing
     "
     """
+    
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('Disaster_Response', engine, index=False)  
 
 
 def main():
+    """
+    " main function. Load data from command line arguments, clean it, 
+    " save it into a database
+    "
+    " Args:
+    "   none
+    "
+    " Returns:
+    "   nothing
+    "
+    """
     if len(sys.argv) == 4:
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
