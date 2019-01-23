@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-1. [Installations](#installation)
+1. [Installation](#installation)
 2. [Project Motivation](#motivation)
 3. [Files Description](#files_description)
 4. [How to Interact with the project](#interaction)
