@@ -1,6 +1,7 @@
 # import libraries
 import sys
 import pandas as pd
+import numpy as np
 import nltk
 import re
 import pickle
@@ -84,7 +85,7 @@ def build_model():
     parameters = { 
                     'vect__max_df': (0.5, 0.75), 
                     'tfidf__use_idf': (True, False), 
-                    'clf__estimator__n_estimators': [10, 50, 100], 
+                    'clf__estimator__n_estimators': [50, 100], 
                     }
     
     grid_searched_model = GridSearchCV(pipeline, param_grid=parameters, cv=3)
@@ -106,11 +107,16 @@ def evaluate_model(model, X_test, Y_test, category_names):
     "   nothing
     "
     """
-    y_pred = pd.DataFrame(model.predict(X_test))
-    y_pred.columns = Y_test.columns
-    for column in category_names:
-        print(column + ':')
-        print(classification_report(Y_test[column], y_pred[column], target_names=category_names))
+    y_pred = model.predict(X_test)
+    print(classification_report(y_pred, Y_test.values, target_names=category_names))
+    # print raw accuracy score 
+    print('Accuracy Score: {}'.format(np.mean(Y_test.values == y_pred)))
+ 
+#    y_pred = pd.DataFrame(model.predict(X_test))
+#    y_pred.columns = Y_test.columns
+#    for column in category_names:
+#        print(column + ':')
+#        print(classification_report(Y_test[column], y_pred[column], target_names=category_names))
 
 
 def save_model(model, model_filepath):

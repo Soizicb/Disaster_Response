@@ -84,7 +84,7 @@ def index():
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Categories"
+                    'title': ""
                 }
             }
         },
@@ -102,7 +102,7 @@ def index():
                     'title': "Percentage"
                 },
                 'xaxis': {
-                    'title': "Categories"
+                    'title': ""
                 }
             }
         },

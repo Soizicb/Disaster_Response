@@ -50,6 +50,7 @@ def clean_data(df):
     
     # drop duplicates
     df.drop_duplicates(inplace=True)
+    df.related.replace(2,1, inplace=True)
     
     return df
 
